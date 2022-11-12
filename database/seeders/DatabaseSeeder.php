@@ -28,7 +28,9 @@ class DatabaseSeeder extends Seeder
         $this->Call(UsersSeeder::class);
 
         $this->call(CustomerSeeder::class);
-
+        $this->call(ProductSeeder::class);
+        $this->call(TableSeeder::class);
+        
         if (env('APP_ENV') == 'local') {
 
             // User::factory(60)->create();

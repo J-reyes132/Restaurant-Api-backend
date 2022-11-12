@@ -13,6 +13,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TableController;
 use App\Models\Customer;
 
 /*
@@ -70,6 +72,20 @@ Route::group(['middleware' => ['auth:api', 'verified']], function () {
     Route::post('/customer', [CustomerController::class, 'store']);
     Route::post('/customer/{customer}/update', [CustomerController::class, 'update']);
     Route::delete('/customer/{customer}/delete', [CustomerController::class, 'destroy']);
+
+    //PRODUCTS
+    Route::get('/product', [ProductController::class, 'index']);
+    Route::get('/product/{product}/show', [ProductController::class, 'show']);
+    Route::post('/product', [ProductController::class, 'store']);
+    Route::post('/product/{product}/update', [ProductController::class, 'update']);
+    Route::delete('/product/{product}/delete', [ProductController::class, 'destroy']);
+
+    //TABLES
+    Route::get('/table', [TableController::class, 'index']);
+    Route::get('/table/{table}/show', [TableController::class, 'show']);
+    Route::post('/table', [TableController::class, 'store']);
+    Route::post('/table/{table}/update', [TableController::class, 'update']);
+    Route::delete('/table/{table}/delete', [TableController::class, 'destroy']);
 });
 
 

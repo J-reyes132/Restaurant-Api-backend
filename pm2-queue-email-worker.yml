@@ -1,0 +1,19 @@
+apps:
+  - name: queue-email-worker
+    namespace: queues
+    version: 1.0.0
+    interpreter: php
+    script: artisan
+    exec_mode: fork
+    watch: false
+    time: true
+    wait_ready: true
+    autorestart: true
+    max_memory_restart: 128M
+    max_restarts: 1
+    instances: 1
+    args:
+      - queue:work
+      - --queue=email,default,high,medium,low
+      - --tries=3
+      - --sleep=1

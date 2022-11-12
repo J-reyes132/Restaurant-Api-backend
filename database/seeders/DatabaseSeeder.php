@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Citizen;
+use App\Models\Customer;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 
@@ -26,6 +27,7 @@ class DatabaseSeeder extends Seeder
         
         $this->Call(UsersSeeder::class);
 
+        $this->call(CustomerSeeder::class);
 
         if (env('APP_ENV') == 'local') {
 

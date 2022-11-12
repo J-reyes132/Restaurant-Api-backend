@@ -7,11 +7,13 @@ use App\Tools\ResponseCodes;
 
 #USER SCAFFOLD
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\PermisoController;
+use App\Models\Customer;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,18 +41,6 @@ Route::group(['middleware' => ['auth:api', 'verified']], function () {
     Route::post('/profile/update', [ProfileController::class, 'update']);
     Route::post('/profile/changepassword', [ProfileController::class, 'changePassword']);
 
-    //Bitacoras
-    Route::get('/bitacoras', [BitacoraController::class, 'index']);
-    Route::get('/bitacoras/{bitacora}/show', [BitacoraController::class, 'show']);
-
-    //TERRITORIAL
-    Route::get('/paises', [CountryController::class, 'index']);
-    Route::get('/paises/{pais}/show', [CountryController::class, 'show']);
-    Route::get('/provincias/{provincia}/show', [ProvinciaController::class, 'show']);
-
-    Route::get('/municipios/{municipio}/show', [MunicipioController::class, 'show']);
-
-    Route::get('/distritos/{distrito}/show', [DistritoController::class, 'show']);
 
     //USERS
     Route::get('/usuarios', [UserController::class, 'index']);
@@ -74,6 +64,12 @@ Route::group(['middleware' => ['auth:api', 'verified']], function () {
     Route::delete('/roles/{role}/detachPermission', [RoleController::class, 'detachPermission']);
     Route::delete('/roles/{role}/delete', [RoleController::class, 'destroy']);
 
+    //CUSTOMERS
+    Route::get('/customer', [CustomerController::class, 'index']);
+    Route::get('/customer/{customer}/show', [CustomerController::class, 'show']);
+    Route::post('/customer', [CustomerController::class, 'store']);
+    Route::post('/customer/{customer}/update', [CustomerController::class, 'update']);
+    Route::delete('/customer/{customer}/delete', [CustomerController::class, 'destroy']);
 });
 
 

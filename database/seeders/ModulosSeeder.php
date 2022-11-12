@@ -50,6 +50,12 @@ class ModulosSeeder extends Seeder
                 'created_at' => $date,
                 'updated_at' => $date
             ],
+            [
+                'nombre' => 'clientes',
+                'descripcion' => 'Modulo clientes',
+                'created_at' => $date,
+                'updated_at' => $date
+            ],
         ]);
     }
 }

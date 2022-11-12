@@ -4,35 +4,34 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Exceptions\SomethingWentWrong;
-use App\Http\Resources\CustomerListResource;
-use App\Models\Customer;
+use App\Http\Resources\ProductResource;
+use App\Models\Product;
 
-
-class CustomerController extends Controller
+class ProductController extends Controller
 {
-    public const MODULO = 'clientes';
-        /**
+    public const MODULO = 'productos';
+          /**
      * @OA\Get(
-     *     tags={"Customer"},
-     *     path="/api/customer",
-     *     description="List customers",
+     *     tags={"Product"},
+     *     path="/api/product",
+     *     description="List products",
      *     security={{"token": {}}},
-     *     operationId="customer_list",
+     *     operationId="product_list",
      *  @OA\Parameter(
      *          name="name",
      *          in="query",
-     *          description="customer name",
+     *          description="product name",
      *          required=false,
      *          @OA\Schema(
      *              type="string",
      *              format="string",
-     *              example="pedro",
+     *              example="agua",
      *          )
      *      ),
      *      *  @OA\Parameter(
      *          name="perPage",
      *          in="query",
-     *          description="customer name",
+     *          description="per page",
      *          required=false,
      *          @OA\Schema(
      *              type="integer",
@@ -56,15 +55,15 @@ class CustomerController extends Controller
      * )
      */
 
-     public function index(Request $request){
+    public function index(Request $request){
         auth()->user()->hasModulo(self::MODULO);
         auth()->user()->hasPermiso('read');
 
         try{
-            $customer = Customer::name($request->name)
+            $product = Product::name($request->name)
               ->paginate($request->perPage ?? env('PAGINATE'));
             
-            return CustomerListResource::collection($customer);
+            return ProductResource::collection($product);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);
         }
@@ -72,15 +71,15 @@ class CustomerController extends Controller
 
              /**
      * @OA\Get(
-     *     tags={"Customer"},
-     *     path="/api/customer/{customer}/show",
-     *     description="show a customer",
+     *     tags={"Product"},
+     *     path="/api/product/{product}/show",
+     *     description="show a product",
      *     security={{"token": {}}},
-     *     operationId="customer_show",
+     *     operationId="product_show",
      *  @OA\Parameter(
-     *          name="customer",
+     *          name="product",
      *          in="path",
-     *          description="customer id",
+     *          description="product id",
      *          required=false,
      *          @OA\Schema(
      *              type="integer",
@@ -103,12 +102,12 @@ class CustomerController extends Controller
      *     ),
      * )
      */
-    public function show(Customer $customer){
+    public function show(Product $product){
         auth()->user()->hasModulo(self::MODULO);
         auth()->user()->hasPermiso('read');
 
         try{
-            return new CustomerListResource($customer);
+            return new ProductResource($product);
         } catch(\Throwable $th){
             throw new SomethingWentWrong($th);
         }
@@ -116,19 +115,19 @@ class CustomerController extends Controller
 
         /**
      * @OA\Post(
-     *     tags={"Customer"},
-     *     path="/api/customer",
-     *     description="Create a new customer",
+     *     tags={"Product"},
+     *     path="/api/product",
+     *     description="Create a new product",
      *     security={{"token": {}}},
-     *     operationId="customer_create",
+     *     operationId="product_create",
      * @OA\RequestBody(
      *    required=true,
      *     @OA\MediaType(mediaType="multipart/form-data",
-     *       @OA\Schema( required={"first_name", "last_name", },
-     *                  @OA\Property(property="first_name", type="string", description="customer name", example="Pedro Manuel"),
-     *                  @OA\Property(property="last_name", type="string", description="Customer last name", example="Martinez Perez"),
-     *                  @OA\Property(property="phone", type="string", description="customer phone", example="809-555-99999"),
-     *                  @OA\Property(property="email", type="string", description="Customer Email", example="customer1@test.com"),
+     *       @OA\Schema( required={"name", "price","category" },
+     *                  @OA\Property(property="name", type="string", description="product name", example="dulce de leche"),
+     *                  @OA\Property(property="description", type="string", description="Product Description", example="Filete"),
+     *                  @OA\Property(property="price", type="integer", description="product price", example="300"),
+     *                  @OA\Property(property="category", type="string", description="Product category", example="plato"),
      *       ),
      *      ),
      *   ),
@@ -152,19 +151,20 @@ class CustomerController extends Controller
         auth()->user()->hasPermiso('create');
 
         $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required'
+            'name' => 'required',
+            'price' => 'required',
+            'category' => 'required'
         ]);
 
         try{
-            $customer = New Customer();
-            $customer->first_name = $request->first_name;
-            $customer->last_name = $request->last_name;
-            $customer->phone = $request->phone;
-            $customer->email = $request->email;
-            $customer->save();
+            $product = New Product();
+            $product->name = $request->name;
+            $product->description = $request->description;
+            $product->price = $request->price;
+            $product->category = $request->category;
+            $product->save();
 
-            return new CustomerListResource($customer);
+            return new ProductResource($product);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);
         }
@@ -173,15 +173,15 @@ class CustomerController extends Controller
     
         /**
      * @OA\Post(
-     *     tags={"Customer"},
-     *     path="/api/customer/{customer}/update",
-     *     description="Update a customer",
+     *     tags={"Product"},
+     *     path="/api/product/{product}/update",
+     *     description="Update a product",
      *     security={{"token": {}}},
-     *     operationId="customer_update",
+     *     operationId="product_update",
      *      *  @OA\Parameter(
-     *          name="customer",
+     *          name="product",
      *          in="path",
-     *          description="customer id",
+     *          description="product id",
      *          required=false,
      *          @OA\Schema(
      *              type="integer",
@@ -192,11 +192,11 @@ class CustomerController extends Controller
      * @OA\RequestBody(
      *    required=true,
      *     @OA\MediaType(mediaType="multipart/form-data",
-     *       @OA\Schema( required={"first_name", "last_name", },
-     *                  @OA\Property(property="first_name", type="string", description="customer name", example="Pedro Manuel"),
-     *                  @OA\Property(property="last_name", type="string", description="Customer last name", example="Martinez Perez"),
-     *                  @OA\Property(property="phone", type="string", description="customer phone", example="809-555-99999"),
-     *                  @OA\Property(property="email", type="string", description="Customer Email", example="customer1@test.com"),
+     *       @OA\Schema( required={"name", "price","category" },
+     *                  @OA\Property(property="name", type="string", description="product name", example="dulce de leche"),
+     *                  @OA\Property(property="description", type="string", description="Product Description", example="Filete"),
+     *                  @OA\Property(property="price", type="integer", description="product price", example="300"),
+     *                  @OA\Property(property="category", type="string", description="Product category", example="plato"),
      *       ),
      *      ),
      *   ),
@@ -216,23 +216,24 @@ class CustomerController extends Controller
      * )
      */
 
-     public function update(Customer $customer, Request $request){
+     public function update(Product $product, Request $request){
         auth()->user()->hasModulo(self::MODULO);
         auth()->user()->hasPermiso('create');
-
+    
         $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required'
+            'name' => 'required',
+            'price' => 'required',
+            'category' => 'required'
         ]);
 
         try{
-            $customer->first_name = $request->first_name;
-            $customer->last_name = $request->last_name;
-            $customer->phone = $request->phone;
-            $customer->email = $request->email;
-            $customer->save();
-
-            return new CustomerListResource($customer);
+         
+            $product->name = $request->name;
+            $product->description = $request->description;
+            $product->price = $request->price;
+            $product->category = $request->category;
+            $product->save();
+            return new ProductResource($product);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);
         }
@@ -240,15 +241,15 @@ class CustomerController extends Controller
 
          /**
      * @OA\Delete(
-     *     tags={"Customer"},
-     *     path="/api/customer/{customer}/delete",
-     *     description="Delete a Customer",
+     *     tags={"Product"},
+     *     path="/api/product/{product}/delete",
+     *     description="Delete a Product",
      *     security={{"token": {}}},
-     *     operationId="customer_delete",
+     *     operationId="product_delete",
      * @OA\Parameter(
-     *          name="customer",
+     *          name="product",
      *          in="path",
-     *          description="customer id",
+     *          description="product id",
      *          required=true,
      *          @OA\Schema(
      *              type="integer",
@@ -279,12 +280,12 @@ class CustomerController extends Controller
      *     ),
      * )
      */
-    public function destroy(Customer $customer){
+    public function destroy(Product $product){
         auth()->user()->hasModulo(self::MODULO);
         auth()->user()->hasPermiso('destroy');
         try {
 
-            $customer->delete();
+            $product->delete();
             return $this->deleted();
         } catch (\Throwable $th) {
             throw new SomethingWentWrong($th);

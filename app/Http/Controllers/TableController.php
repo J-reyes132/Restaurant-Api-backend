@@ -4,35 +4,34 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Exceptions\SomethingWentWrong;
-use App\Http\Resources\CustomerListResource;
-use App\Models\Customer;
+use App\Http\Resources\TableResource;
+use App\Models\Table;
 
-
-class CustomerController extends Controller
+class TableController extends Controller
 {
-    public const MODULO = 'clientes';
-        /**
+    //
+            /**
      * @OA\Get(
-     *     tags={"Customer"},
-     *     path="/api/customer",
-     *     description="List customers",
+     *     tags={"Table"},
+     *     path="/api/table",
+     *     description="List tables",
      *     security={{"token": {}}},
-     *     operationId="customer_list",
+     *     operationId="table_list",
      *  @OA\Parameter(
-     *          name="name",
+     *          name="capacity",
      *          in="query",
-     *          description="customer name",
+     *          description="table capacity",
      *          required=false,
      *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *              example="pedro",
+     *              type="integer",
+     *              format="integer",
+     *              example="6",
      *          )
      *      ),
      *      *  @OA\Parameter(
      *          name="perPage",
      *          in="query",
-     *          description="customer name",
+     *          description="per page",
      *          required=false,
      *          @OA\Schema(
      *              type="integer",
@@ -56,15 +55,14 @@ class CustomerController extends Controller
      * )
      */
 
-     public function index(Request $request){
-        auth()->user()->hasModulo(self::MODULO);
+    public function index(Request $request){
         auth()->user()->hasPermiso('read');
 
         try{
-            $customer = Customer::name($request->name)
+            $table = Table::capacity($request->capacity)
               ->paginate($request->perPage ?? env('PAGINATE'));
             
-            return CustomerListResource::collection($customer);
+            return TableResource::collection($table);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);
         }
@@ -72,15 +70,15 @@ class CustomerController extends Controller
 
              /**
      * @OA\Get(
-     *     tags={"Customer"},
-     *     path="/api/customer/{customer}/show",
-     *     description="show a customer",
+     *     tags={"Table"},
+     *     path="/api/table/{table}/show",
+     *     description="show a table",
      *     security={{"token": {}}},
-     *     operationId="customer_show",
+     *     operationId="table_show",
      *  @OA\Parameter(
-     *          name="customer",
+     *          name="table",
      *          in="path",
-     *          description="customer id",
+     *          description="table id",
      *          required=false,
      *          @OA\Schema(
      *              type="integer",
@@ -103,12 +101,11 @@ class CustomerController extends Controller
      *     ),
      * )
      */
-    public function show(Customer $customer){
-        auth()->user()->hasModulo(self::MODULO);
+    public function show(Table $table){
         auth()->user()->hasPermiso('read');
 
         try{
-            return new CustomerListResource($customer);
+            return new TableResource($table);
         } catch(\Throwable $th){
             throw new SomethingWentWrong($th);
         }
@@ -116,19 +113,16 @@ class CustomerController extends Controller
 
         /**
      * @OA\Post(
-     *     tags={"Customer"},
-     *     path="/api/customer",
-     *     description="Create a new customer",
+     *     tags={"Table"},
+     *     path="/api/table",
+     *     description="Create a new table",
      *     security={{"token": {}}},
-     *     operationId="customer_create",
+     *     operationId="table_create",
      * @OA\RequestBody(
      *    required=true,
      *     @OA\MediaType(mediaType="multipart/form-data",
-     *       @OA\Schema( required={"first_name", "last_name", },
-     *                  @OA\Property(property="first_name", type="string", description="customer name", example="Pedro Manuel"),
-     *                  @OA\Property(property="last_name", type="string", description="Customer last name", example="Martinez Perez"),
-     *                  @OA\Property(property="phone", type="string", description="customer phone", example="809-555-99999"),
-     *                  @OA\Property(property="email", type="string", description="Customer Email", example="customer1@test.com"),
+     *       @OA\Schema( required={"capacity"},
+     *                  @OA\Property(property="capacity", type="integer", description="table capacity", example="7"),
      *       ),
      *      ),
      *   ),
@@ -148,23 +142,18 @@ class CustomerController extends Controller
      * )
      */
     public function store(Request $request){
-        auth()->user()->hasModulo(self::MODULO);
         auth()->user()->hasPermiso('create');
 
         $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required'
+            'capacity' => 'required'
         ]);
 
         try{
-            $customer = New Customer();
-            $customer->first_name = $request->first_name;
-            $customer->last_name = $request->last_name;
-            $customer->phone = $request->phone;
-            $customer->email = $request->email;
-            $customer->save();
+            $table = New Table();
+            $table->capacity = $request->capacity;
+            $table->save();
 
-            return new CustomerListResource($customer);
+            return new TableResource($table);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);
         }
@@ -173,15 +162,15 @@ class CustomerController extends Controller
     
         /**
      * @OA\Post(
-     *     tags={"Customer"},
-     *     path="/api/customer/{customer}/update",
-     *     description="Update a customer",
+     *     tags={"Table"},
+     *     path="/api/table/{table}/update",
+     *     description="Update a table",
      *     security={{"token": {}}},
-     *     operationId="customer_update",
+     *     operationId="table_update",
      *      *  @OA\Parameter(
-     *          name="customer",
+     *          name="table",
      *          in="path",
-     *          description="customer id",
+     *          description="table id",
      *          required=false,
      *          @OA\Schema(
      *              type="integer",
@@ -192,11 +181,8 @@ class CustomerController extends Controller
      * @OA\RequestBody(
      *    required=true,
      *     @OA\MediaType(mediaType="multipart/form-data",
-     *       @OA\Schema( required={"first_name", "last_name", },
-     *                  @OA\Property(property="first_name", type="string", description="customer name", example="Pedro Manuel"),
-     *                  @OA\Property(property="last_name", type="string", description="Customer last name", example="Martinez Perez"),
-     *                  @OA\Property(property="phone", type="string", description="customer phone", example="809-555-99999"),
-     *                  @OA\Property(property="email", type="string", description="Customer Email", example="customer1@test.com"),
+     *       @OA\Schema( required={"capacity"},
+     *                  @OA\Property(property="capacity", type="string", description="table capacity", example="9"),
      *       ),
      *      ),
      *   ),
@@ -216,23 +202,19 @@ class CustomerController extends Controller
      * )
      */
 
-     public function update(Customer $customer, Request $request){
-        auth()->user()->hasModulo(self::MODULO);
+     public function update(Table $table, Request $request){
         auth()->user()->hasPermiso('create');
-
+    
         $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required'
+            'capacity' => 'required'
         ]);
 
         try{
-            $customer->first_name = $request->first_name;
-            $customer->last_name = $request->last_name;
-            $customer->phone = $request->phone;
-            $customer->email = $request->email;
-            $customer->save();
+         
+            $table->capacity = $request->capacity;
 
-            return new CustomerListResource($customer);
+            $table->save();
+            return new TableResource($table);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);
         }
@@ -240,15 +222,15 @@ class CustomerController extends Controller
 
          /**
      * @OA\Delete(
-     *     tags={"Customer"},
-     *     path="/api/customer/{customer}/delete",
-     *     description="Delete a Customer",
+     *     tags={"Table"},
+     *     path="/api/table/{table}/delete",
+     *     description="Delete a Table",
      *     security={{"token": {}}},
-     *     operationId="customer_delete",
+     *     operationId="table_delete",
      * @OA\Parameter(
-     *          name="customer",
+     *          name="table",
      *          in="path",
-     *          description="customer id",
+     *          description="table id",
      *          required=true,
      *          @OA\Schema(
      *              type="integer",
@@ -279,12 +261,12 @@ class CustomerController extends Controller
      *     ),
      * )
      */
-    public function destroy(Customer $customer){
-        auth()->user()->hasModulo(self::MODULO);
+    public function destroy(Table $table){
+
         auth()->user()->hasPermiso('destroy');
         try {
 
-            $customer->delete();
+            $table->delete();
             return $this->deleted();
         } catch (\Throwable $th) {
             throw new SomethingWentWrong($th);

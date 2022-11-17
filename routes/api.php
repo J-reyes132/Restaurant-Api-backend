@@ -8,6 +8,7 @@ use App\Tools\ResponseCodes;
 #USER SCAFFOLD
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -72,6 +73,13 @@ Route::group(['middleware' => ['auth:api', 'verified']], function () {
     Route::post('/customer', [CustomerController::class, 'store']);
     Route::post('/customer/{customer}/update', [CustomerController::class, 'update']);
     Route::delete('/customer/{customer}/delete', [CustomerController::class, 'destroy']);
+
+    //EMPLOYEES
+    Route::get('/employee', [EmployeeController::class, 'index']);
+    Route::get('/employee/{employee}/show', [EmployeeController::class, 'show']);
+    Route::post('employee', [EmployeeController::class, 'store']);
+    Route::post('/employee/{employee}/update', [EmployeeController::class, 'update']);
+    Route::delete('/employee/{employee}/delete', [EmployeeController::class, 'destroy']);
 
     //PRODUCTS
     Route::get('/product', [ProductController::class, 'index']);

@@ -104,7 +104,6 @@ class RoleController extends Controller
             $role->nombre = $request->nombre;
             $role->descripcion = $request->descripcion;
             $role->save();
-            $this->bitacora(self::MODULO, __METHOD__, $role);
             return new RoleResourceFull($role);
         } catch (\Throwable $th) {
             throw new SomethingWentWrong($th);
@@ -207,7 +206,6 @@ class RoleController extends Controller
                 $role->nombre = $request->nombre;
                 $role->descripcion = $request->descripcion;
                 $role->save();
-                $this->bitacora(self::MODULO, __METHOD__, $role);
                 return new RoleResourceFull($role);
             } catch (\Throwable $th) {
                 throw new SomethingWentWrong($th);
@@ -263,7 +261,7 @@ class RoleController extends Controller
         if($role->usuarios ? $role->usuarios->count() > 0 : false) {
             throw new NotEmpty;
         } else {
-            $this->bitacora(self::MODULO, __METHOD__, $role);
+
             $role->delete();
             return $this->deleted();
         }

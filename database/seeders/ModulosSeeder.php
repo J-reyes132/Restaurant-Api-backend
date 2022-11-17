@@ -62,6 +62,12 @@ class ModulosSeeder extends Seeder
                 'created_at' => $date,
                 'updated_at' => $date
             ],
+            [
+                'nombre' => 'empleados',
+                'descripcion' => 'Modulo empleados',
+                'created_at' => $date,
+                'updated_at' => $date
+            ],
         ]);
     }
 }

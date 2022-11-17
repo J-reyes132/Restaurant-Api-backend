@@ -113,7 +113,6 @@ class ProfileController extends Controller
             }
             $user->profile->updated_at = Carbon::now();
             $user->profile->save();
-            $this->bitacora(self::MODULO, __METHOD__, $user->profile);
             return new UserResource($user);
         } catch (\Throwable $th) {
             throw new SomethingWentWrong($th);
@@ -166,7 +165,6 @@ class ProfileController extends Controller
             try {
                 $user->password = bcrypt($request->password);
                 $user->save();
-                $this->bitacora(self::MODULO, __METHOD__, $user->profile);
                 return response()->json(['status' => 'successful', 'message' => 'Contraseña cambiada'], ResponseCodes::OK);
             } catch (\Throwable $th) {
                 throw new SomethingWentWrong($th);

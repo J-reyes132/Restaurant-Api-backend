@@ -73,11 +73,10 @@ class UserController extends Controller
      * @OA\RequestBody(
      *    required=true,
      *     @OA\MediaType(mediaType="multipart/form-data",
-     *       @OA\Schema( required={"nombre","email","role","institution_id","password","password_confirmation"},
+     *       @OA\Schema( required={"nombre","email","role","password","password_confirmation"},
      *                  @OA\Property(property="nombre", type="string", description="Nombre del usuario", example="Juan Perez"),
      *                  @OA\Property(property="email", type="string", description="Email del usuario", example="user@email.aqui"),
      *                  @OA\Property(property="role", type="integer", description="Role ID a asignar", example="1"),
-     *                  @OA\Property(property="institution_id", type="integer", description="Institution ID a asignar", example="1"),
      *                  @OA\Property(property="telefono", type="string", description="Telefono Contacto", example="(999) 555-5555"),
      *                  @OA\Property(property="movil", type="string", description="Movil Contacto", example="(999) 444-3333"),
      *                  @OA\Property(property="password", type="string", description="Password", example="SuperStrongPasswordHere"),
@@ -110,18 +109,16 @@ class UserController extends Controller
             'nombre'  => 'required',
             'email' => 'required|email|unique:users',
             'role' => 'required',
-            'institution_id' => 'required',
             'password' => 'required|confirmed',
         ]);
 
-        $imagen = $this->uploadGoogle($request, "imagen");
+        // $imagen = $this->uploadGoogle($request, "imagen");
 
         $role = Role::findOrFail($request->role);
 
         try {
             $user = new User;
             $user->role_id = $role->id;
-            $user->institution_id = $request->institution_id;
             $user->email = $request->email;
             $user->password = bcrypt($request->password);
             $user->email_verified_at = Carbon::now();
@@ -132,13 +129,12 @@ class UserController extends Controller
             $profile->name = $request->nombre;
             $profile->phone = $request->telefono;
             $profile->movil = $request->movil;
-            $profile->image_url = $imagen['url'];
-            $profile->image_publicId = $imagen['name'];
-            $profile->image_size = $imagen['size'];
-            $profile->image_ext = $imagen['ext'];
+            // $profile->image_url = $imagen['url'];
+            // $profile->image_publicId = $imagen['name'];
+            // $profile->image_size = $imagen['size'];
+            // $profile->image_ext = $imagen['ext'];
             $profile->save();
 
-            $this->bitacora(self::MODULO, __METHOD__, $user->profile);
 
             return new UserResource($user);
         } catch (\Throwable $th) {
@@ -206,11 +202,10 @@ class UserController extends Controller
      * @OA\RequestBody(
      *    required=true,
      *     @OA\MediaType(mediaType="multipart/form-data",
-     *       @OA\Schema( required={"nombre","role","institution_id"},
+     *       @OA\Schema( required={"nombre","role"},
      *                  @OA\Property(property="nombre", type="string", description="Nombre del usuario", example="Juan Perez"),
      *                  @OA\Property(property="email", type="string", description="Email del usuario", example="user@email.aqui"),
      *                  @OA\Property(property="role", type="integer", description="Role ID Asignado", example="1"),
-     *                  @OA\Property(property="institution_id", type="integer", description="Institution ID Asignado", example="1"),
      *                  @OA\Property(property="telefono", type="string", description="Telefono Contacto", example="(999) 555-5555"),
      *                  @OA\Property(property="movil", type="string", description="Movil Contacto", example="(999) 444-3333"),
      *                  @OA\Property(property="imagen", type="string", format="binary"),
@@ -241,33 +236,30 @@ class UserController extends Controller
             'nombre'  => 'required',
             'email' => 'required|email|unique:users,email,' . $usuario->id,
             'role' => 'required',
-            'institution_id' => 'required',
         ]);
 
-        if (isset($request->imagen)) {
-            $this->destroyGoogle($usuario->profile->image_publicId);
-            $imagen = $this->uploadGoogle($request, "imagen");
-        }
+        // if (isset($request->imagen)) {
+        //     $this->destroyGoogle($usuario->profile->image_publicId);
+        //     $imagen = $this->uploadGoogle($request, "imagen");
+        // }
 
         $role = Role::findOrFail($request->role);
 
         try {
             $usuario->role_id = $role->id;
-            $usuario->institution_id = $request->institution_id;
             $usuario->email = $request->email;
             $usuario->save();
 
             $usuario->profile->name = $request->nombre;
             $usuario->profile->phone = $request->telefono;
             $usuario->profile->movil = $request->movil;
-            if (isset($request->imagen)) {
-                $usuario->profile->image_url = $imagen['url'];
-                $usuario->profile->image_publicId = $imagen['name'];
-                $usuario->profile->image_size = $imagen['size'];
-                $usuario->profile->image_ext = $imagen['ext'];
-            }
+            // if (isset($request->imagen)) {
+            //     $usuario->profile->image_url = $imagen['url'];
+            //     $usuario->profile->image_publicId = $imagen['name'];
+            //     $usuario->profile->image_size = $imagen['size'];
+            //     $usuario->profile->image_ext = $imagen['ext'];
+            // }
             $usuario->profile->save();
-            $this->bitacora(self::MODULO, __METHOD__, $usuario->profile);
             return new UserResource($usuario);
         } catch (\Throwable $th) {
             throw new SomethingWentWrong($th);
@@ -331,7 +323,6 @@ class UserController extends Controller
             try {
                 $usuario->password = bcrypt($request->password);
                 $usuario->save();
-                $this->bitacora(self::MODULO, __METHOD__, $usuario->profile);
                 return response()->json(['status' => 'Successful', 'message' => 'Password cambiado'], ResponseCodes::OK);
             } catch (\Throwable $th) {
                 throw new SomethingWentWrong($th);
@@ -389,7 +380,6 @@ class UserController extends Controller
         if ($user->id == auth()->user()->id) {
             throw new SameUser;
         } else {
-            $this->bitacora(self::MODULO, __METHOD__, $user->profile);
             $user->delete();
             return $this->deleted();
         }
@@ -446,7 +436,7 @@ class UserController extends Controller
             try {
                 $usuario->active ? $usuario->active = false : $usuario->active = true;
                 $usuario->save();
-                $this->bitacora(self::MODULO, __METHOD__, $usuario);
+
                 return new UserResource($usuario);
             } catch (\Throwable $th) {
                 throw new SomethingWentWrong($th);

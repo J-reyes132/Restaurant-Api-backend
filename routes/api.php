@@ -9,6 +9,7 @@ use App\Tools\ResponseCodes;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -94,6 +95,13 @@ Route::group(['middleware' => ['auth:api', 'verified']], function () {
     Route::post('/table', [TableController::class, 'store']);
     Route::post('/table/{table}/update', [TableController::class, 'update']);
     Route::delete('/table/{table}/delete', [TableController::class, 'destroy']);
+
+    //MENUS
+    Route::get('/menu', [MenuController::class, 'index']);
+    Route::get('/menu/{menu}/show', [MenuController::class, 'show']);
+    Route::post('/menu', [MenuController::class, 'store']);
+    Route::post('/menu/{menu}/update', [MenuController::class, 'update']);
+    Route::delete('/menu/{menu}/delete', [MenuController::class, 'destroy']);
 });
 
 

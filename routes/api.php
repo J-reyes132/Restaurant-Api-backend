@@ -14,6 +14,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ModuloController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TableController;
@@ -96,6 +97,11 @@ Route::group(['middleware' => ['auth:api', 'verified']], function () {
     Route::post('/table/{table}/update', [TableController::class, 'update']);
     Route::delete('/table/{table}/delete', [TableController::class, 'destroy']);
 
+    Route::get('/order', [OrderController::class, 'index']);
+    Route::get('/order/{order}/show', [OrderController::class, 'show']);
+    Route::post('/order', [OrderController::class, 'store']);
+    Route::post('/order/{order}/update', [OrderController::class, 'update']);
+    Route::delete('/order/{order}/delete', [OrderController::class, 'destroy']);
     //MENUS
     Route::get('/menu', [MenuController::class, 'index']);
     Route::get('/menu/{menu}/show', [MenuController::class, 'show']);

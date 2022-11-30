@@ -48,16 +48,16 @@ class MenuController extends Controller
 public function index(Request $request){
     auth()->user()->hasModulo(self::MODULO);
     auth()->user()->hasPermiso('read');
-  
+
     try{
-        $menu = Menu::all()->paginate($request->perPage ?? env('PAGINATE'));
-        
+        $menu = Menu::all();
+
         return MenuResource::collection($menu);
     } catch (\Throwable $th){
         throw new SomethingWentWrong($th);
     }
   }
-  
+
          /**
   * @OA\Get(
   *     tags={"Menu"},
@@ -94,14 +94,14 @@ public function index(Request $request){
   public function show(Menu $menu){
     auth()->user()->hasModulo(self::MODULO);
     auth()->user()->hasPermiso('read');
-  
+
     try{
         return new MenuResource($menu);
     } catch(\Throwable $th){
         throw new SomethingWentWrong($th);
     }
   }
-  
+
     /**
   * @OA\Post(
   *     tags={"Menu"},
@@ -138,11 +138,11 @@ public function index(Request $request){
   public function store(Request $request){
     auth()->user()->hasModulo(self::MODULO);
     auth()->user()->hasPermiso('create');
-  
+
     $this->validate($request, [
        'name' => 'required'
     ]);
-  
+
     try{
         $menu = New Menu();
         $menu->name = $request->name;
@@ -153,14 +153,14 @@ public function index(Request $request){
                 $menu->products()->attach($product);
             }
         }
-  
+
         return new MenuResource($menu);
     } catch (\Throwable $th){
         throw new SomethingWentWrong($th);
     }
   }
-  
-  
+
+
     /**
   * @OA\Post(
   *     tags={"Menu"},
@@ -205,17 +205,17 @@ public function index(Request $request){
   *     ),
   * )
   */
-  
+
   public function update(Menu $menu, Request $request){
     auth()->user()->hasModulo(self::MODULO);
     auth()->user()->hasPermiso('create');
-  
-  
+
+
     $this->validate($request, [
         'name' => 'required',
         'price' => 'required'
      ]);
-   
+
      try{
 
          $menu->name = $request->name;
@@ -232,7 +232,7 @@ public function index(Request $request){
         throw new SomethingWentWrong($th);
     }
   }
-  
+
      /**
   * @OA\Delete(
   *     tags={"Menu"},
@@ -278,7 +278,7 @@ public function index(Request $request){
     auth()->user()->hasModulo(self::MODULO);
     auth()->user()->hasPermiso('destroy');
     try {
-  
+
         $menu->delete();
         return $this->deleted();
     } catch (\Throwable $th) {

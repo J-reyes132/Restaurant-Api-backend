@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Exceptions\SomethingWentWrong;
 use App\Http\Resources\OrderListResource;
 use App\Http\Resources\OrderResource;
+use App\Models\Employee;
 use App\Models\Inventory;
+use App\Models\Invoice;
 use App\Models\Order;
 use Carbon\Carbon;
 use Cloudinary\Transformation\Quality;
@@ -53,7 +55,7 @@ public function index(Request $request){
   auth()->user()->hasPermiso('read');
 
   try{
-      $order = Order::orderBy('order_date', 'desc')
+      $order = Order::orderBy('order_date', 'desc')->where('status', 1)
         ->paginate($request->perPage ?? env('PAGINATE'));
 
       return OrderListResource::collection($order);
@@ -299,5 +301,63 @@ public function destroy(Order $order){
   } catch (\Throwable $th) {
       throw new SomethingWentWrong($th);
   }
+}
+
+/**
+ *  @OA\Post(
+    *     tags={"Order"},
+    *     path="/api/orderstatus",
+    *     description="change orders",
+    *     security={{"token": {}}},
+    *     operationId="order_status",
+    *      *  @OA\Parameter(
+    *          name="order",
+    *          in="query",
+    *          description="order",
+    *          required=true,
+    *          @OA\Schema(
+    *              type="integer",
+    *              format="integer",
+    *              example="1",
+    *          )
+    *      ),
+    * @OA\Response(
+    *    response=200,
+    *    description="Successful Response",
+    *    @OA\JsonContent(@OA\Property(property="data", type="Json", example="[...]"),
+    *        )
+    * ),
+    * * @OA\Response(
+    *    response=401,
+    *    description="Bad Request",
+    *    @OA\JsonContent(
+    *       @OA\Property(property="message", type="string", example="Unauthenticated")
+    *        )
+    *     ),
+    * )
+    */
+public function changeStatus(Order $order){
+    auth()->user()->hasModulo(self::MODULO);
+    auth()->user()->hasPermiso('read');
+
+
+    $employee = auth()->user()->profile->name;
+    try{
+         $order->status = 0;
+         $order->save();
+
+        $invoice = new Invoice();
+        $invoice->customer_id = $order->customer_id;
+
+        $invoice->employee_id = $employee;
+        $invoice->product_id = $order->product_id;
+        $invoice->total = $order->quantity * $order->product->price;
+        $invoice->save();
+
+        return new OrderResource($order);
+
+    } catch (\Throwable $th){
+        throw new SomethingWentWrong($th);
+    }
 }
 }

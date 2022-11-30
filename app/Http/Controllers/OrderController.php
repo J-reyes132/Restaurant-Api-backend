@@ -11,7 +11,7 @@ use Carbon\Carbon;
 
 class OrderController extends Controller
 {
-    public const MODULO = 'pedidos';
+    public const MODULO = 'productos';
     /**
 * @OA\Get(
 *     tags={"Order"},
@@ -53,7 +53,7 @@ public function index(Request $request){
   try{
       $order = Order::orderBy('order_date', 'desc')
         ->paginate($request->perPage ?? env('PAGINATE'));
-      
+
       return OrderListResource::collection($order);
   } catch (\Throwable $th){
       throw new SomethingWentWrong($th);

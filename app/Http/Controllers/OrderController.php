@@ -151,14 +151,13 @@ public function store(Request $request){
   ]);
 
   try{
-      $order = New Order();
-      $inventory = Inventory::where('product_id', $request->product_io)->first();
+    $inventory = Inventory::where('product_id', $request->product_id)->first();
 
-      $quantity = $inventory->quantity;
-      if($quantity >= $request){
-      if($request->menu_id && $request->product_id){
+    $quantity = $inventory->quantity ?? 0;
+    if($quantity >= $request->quantity){
 
-      }
+        $order = New Order();
+
       $order->table_id = $request->table_id;
       $order->customer_id = $request->customer_id;
       $order->product_id = $request->product_id;

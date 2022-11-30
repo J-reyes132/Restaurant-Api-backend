@@ -32,6 +32,7 @@ use App\Models\Customer;
 */
 
 Route::post('/profile/login', [AuthController::class, 'login'])->name('login');
+Route::post('/usuarios/store', [UserController::class, 'store']);
 
 // Route::get('/posts', 'App\Http\Controllers\api\frontend\PostController');
 // Route::get('/posts', 'PostController')->name('posts');
@@ -50,7 +51,7 @@ Route::group(['middleware' => ['auth:api', 'verified']], function () {
     //USERS
     Route::get('/usuarios', [UserController::class, 'index']);
     Route::get('/usuarios/{usuario}/show', [UserController::class, 'show']);
-    Route::post('/usuarios/store', [UserController::class, 'store']);
+
     Route::post('/usuarios/{usuario}/update', [UserController::class, 'update']);
     Route::delete('/usuarios/{usuario}/delete', [UserController::class, 'destroy']);
     Route::post('/usuarios/{usuario}/resetpassword', [UserController::class, 'resetPassword']);

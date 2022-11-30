@@ -102,8 +102,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        auth()->user()->hasModulo(self::MODULO);
-        auth()->user()->hasPermiso('create');
+
 
         $this->validate($request, [
             'nombre'  => 'required',

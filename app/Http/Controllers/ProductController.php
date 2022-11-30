@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Exceptions\SomethingWentWrong;
 use App\Http\Resources\ProductResource;
+use App\Models\Inventory;
 use App\Models\Product;
 
 class ProductController extends Controller
@@ -62,7 +63,7 @@ class ProductController extends Controller
         try{
             $product = Product::name($request->name)
               ->paginate($request->perPage ?? env('PAGINATE'));
-            
+
             return ProductResource::collection($product);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);
@@ -128,6 +129,8 @@ class ProductController extends Controller
      *                  @OA\Property(property="description", type="string", description="Product Description", example="Filete"),
      *                  @OA\Property(property="price", type="integer", description="product price", example="300"),
      *                  @OA\Property(property="category", type="string", description="Product category", example="plato"),
+     *                  @OA\Property(property="quantity", type="integer", description="Product quantity", example="1"),
+     *
      *       ),
      *      ),
      *   ),
@@ -164,13 +167,20 @@ class ProductController extends Controller
             $product->category = $request->category;
             $product->save();
 
+            if(!empty($request->quantity)){
+                $inventory = new Inventory();
+                $inventory->product_id = $product->id;
+                $inventory->quantity = $request->quantity;
+                $inventory->save();
+            }
+
             return new ProductResource($product);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);
         }
     }
 
-    
+
         /**
      * @OA\Post(
      *     tags={"Product"},
@@ -197,6 +207,7 @@ class ProductController extends Controller
      *                  @OA\Property(property="description", type="string", description="Product Description", example="Filete"),
      *                  @OA\Property(property="price", type="integer", description="product price", example="300"),
      *                  @OA\Property(property="category", type="string", description="Product category", example="plato"),
+     *      *           @OA\Property(property="quantity", type="integer", description="Product quantity", example="1"),
      *       ),
      *      ),
      *   ),
@@ -219,7 +230,7 @@ class ProductController extends Controller
      public function update(Product $product, Request $request){
         auth()->user()->hasModulo(self::MODULO);
         auth()->user()->hasPermiso('create');
-    
+
         $this->validate($request, [
             'name' => 'required',
             'price' => 'required',
@@ -227,12 +238,28 @@ class ProductController extends Controller
         ]);
 
         try{
-         
+
             $product->name = $request->name;
             $product->description = $request->description;
             $product->price = $request->price;
             $product->category = $request->category;
             $product->save();
+
+            if(!empty($request->quantity)){
+                $inventory = Inventory::where('product_id', $product->id)->first();
+                if(!empty($inventory)){
+                    $inventory->product_id = $product->id;
+                    $inventory->quantity = $request->quantity;
+                    $inventory->save();
+                }else{
+                    $inventory = new Inventory();
+                    $inventory->product_id = $product->id;
+                    $inventory->quantity = $request->quantity;
+                    $inventory->save();
+                }
+
+            }
+
             return new ProductResource($product);
         } catch (\Throwable $th){
             throw new SomethingWentWrong($th);

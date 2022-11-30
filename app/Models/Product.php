@@ -14,4 +14,8 @@ class Product extends Model
             return $query->where('name', 'LIKE', '%'.$name.'%');
         }
     }
+
+    public function inventory(){
+        return $this->hasOne(Inventory::class, 'product_id', 'id');
+    }
 }

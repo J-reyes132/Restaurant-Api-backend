@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Exceptions\SomethingWentWrong;
 use App\Http\Resources\OrderListResource;
 use App\Http\Resources\OrderResource;
+use App\Models\Inventory;
 use App\Models\Order;
 use Carbon\Carbon;
+use Cloudinary\Transformation\Quality;
 
 class OrderController extends Controller
 {
@@ -53,7 +55,7 @@ public function index(Request $request){
   try{
       $order = Order::orderBy('order_date', 'desc')
         ->paginate($request->perPage ?? env('PAGINATE'));
-      
+
       return OrderListResource::collection($order);
   } catch (\Throwable $th){
       throw new SomethingWentWrong($th);
@@ -150,6 +152,10 @@ public function store(Request $request){
 
   try{
       $order = New Order();
+      $inventory = Inventory::where('product_id', $request->product_io)->first();
+
+      $quantity = $inventory->quantity;
+      if($quantity >= $request){
       if($request->menu_id && $request->product_id){
 
       }
@@ -161,6 +167,11 @@ public function store(Request $request){
       $order->order_date = Carbon::now();
       $order->save();
 
+      $inventory->quantity = $quantity-1;
+      $inventory->save();
+    } else {
+        return response()->json(['error'=> 'no se puede crear la orden', 'message' => 'la cantidad solicitada no esta disponible en el inventario']);
+    }
       return new OrderResource($order);
   } catch (\Throwable $th){
       throw new SomethingWentWrong($th);
